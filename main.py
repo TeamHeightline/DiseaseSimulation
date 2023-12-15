@@ -1,16 +1,14 @@
 import random
-
 import arcade
 
+# Определение размеров экрана
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 POINT_COUNT = 40
 POINT_NORMAL_SIZE = 0.1
 POINT_MOVEMENT_SPEED = 0.2
 
-# Идея в том, что точка может заболеть от другой точки, заболевание будет длиться некоторое время и
-# отнимет у точки здоровье
-
+# Настройки здоровья точек
 POINT_HEALTH_POINTS = 70
 POINT_HEALTH_POINTS_VARIABILITY = 5
 HOW_MANY_HEALTH_POINTS_WILL_ONE_ILLNESS_INCIDENT_TAKE = 5
@@ -18,32 +16,39 @@ START_NUMBER_OF_SICK_POINTS = 5
 SICK_POINT_SIZE = 0.8
 
 class MyGame(arcade.Window):
-    """ Main application class. """
+    """
+    Основной класс приложения, унаследованный от arcade.Window.
+    Отвечает за управление игровым процессом, включая рендеринг и обновление объектов.
+    """
 
     def __init__(self, width, height):
-        super().__init__(width, height)
+        """
+        Инициализация нового окна игры.
 
+        Args:
+            width (int): Ширина окна.
+            height (int): Высота окна.
+        """
+        super().__init__(width, height)
         arcade.set_background_color(arcade.color.AMAZON)
         self.text = 'Waiting for click...'
 
     def setup(self):
-        # Set up your game here
+        """
+        Настройка начального состояния игры, создание и расстановка точек.
+        Создает фиксированное количество точек в случайных местоположениях.
+        Определенное количество точек делается 'заболевшими', окрашиваясь в красный цвет.
+        """
         self.point_list = arcade.SpriteList()
-
         number_of_created_sick_points = 0
 
         for i in range(POINT_COUNT):
-            # Create the point instance
-            # Coin image from kenney.nl
             point = arcade.Sprite("asset/point.png", POINT_NORMAL_SIZE)
-
-            # Position the point
             point.center_x = random.randrange(SCREEN_WIDTH)
             point.center_y = random.randrange(SCREEN_HEIGHT)
             point.change_x = random.uniform(-POINT_MOVEMENT_SPEED, POINT_MOVEMENT_SPEED)
             point.change_y = random.uniform(-POINT_MOVEMENT_SPEED, POINT_MOVEMENT_SPEED)
 
-            # Создаю больные точки
             if number_of_created_sick_points >= START_NUMBER_OF_SICK_POINTS:
                 point.properties['is_sick'] = False
             else:
@@ -52,23 +57,25 @@ class MyGame(arcade.Window):
                 number_of_created_sick_points += 1
 
             point.properties['health_points'] = random.uniform(POINT_HEALTH_POINTS - POINT_HEALTH_POINTS_VARIABILITY, POINT_HEALTH_POINTS + POINT_HEALTH_POINTS_VARIABILITY)
-
-
-            # Add the point to the lists
             self.point_list.append(point)
 
-        pass
-
     def on_draw(self):
-        """ Render the screen. """
+        """
+        Рендеринг экрана. Вызывается при каждой отрисовке кадра.
+        Отображает все текущие точки и их состояние.
+        """
         arcade.start_render()
         self.point_list.draw()
         arcade.draw_text("Осталось точек: " + str(len(self.point_list)), 80, 20, arcade.color.BLACK, 12, anchor_x='center')
 
-        # Your drawing code goes here
-
     def update(self, delta_time):
-        """ All the logic to move, and the game logic goes here. """
+        """
+        Обновление состояния игры. Вызывается при каждом кадре.
+
+        Args:
+            delta_time (float): Время в секундах с момента последнего обновления.
+        Описывает движение точек и реализует логику взаимодействия между заболевшими и здоровыми точками.
+        """
         for point in self.point_list:
             point.center_x += point.change_x
             point.center_y += point.change_y
